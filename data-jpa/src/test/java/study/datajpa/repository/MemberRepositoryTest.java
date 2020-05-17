@@ -128,4 +128,26 @@ class MemberRepositoryTest {
         assertThat(result.get(0).getUsername()).isEqualTo("AAA");
         assertThat(result.get(0).getTeamName()).isEqualTo("teamA");
     }
+
+    @Test
+    public void bulkUpdate(){
+        // given
+        memberRepository.save(new Member("member1", 10));
+        memberRepository.save(new Member("member2", 19));
+        memberRepository.save(new Member("member3", 20));
+        memberRepository.save(new Member("member4", 21));
+        memberRepository.save(new Member("member5", 40));
+
+        // when
+        int resultCount = memberRepository.bulkAgePlus(20); // 벌크 연산시 영속성 컨텍스트를 무시하고 바로 쿼리를 실행한다.
+                                                            // 따라서 DB에는 벌크 연산결과가 반영되있지만 영속성 컨텍스트에는 반영이 되어있지 않다.
+                                                            // 벌크 연산 후에는 영속성 컨텍스트를 clear 해줘야 한다.
+
+        Member member3 = memberRepository.findByUsername("member3").get(0);
+
+        System.out.println("member1 age : " + member3.getAge());
+
+        // then
+        assertThat(resultCount).isEqualTo(3);
+    }
 }

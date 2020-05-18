@@ -8,6 +8,7 @@ import study.datajpa.dto.MemberDto;
 import study.datajpa.entity.Member;
 import study.datajpa.entity.Team;
 
+import javax.persistence.EntityManager;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -23,6 +24,9 @@ class MemberRepositoryTest {
 
     @Autowired
     TeamRepository teamRepository;
+
+    @Autowired
+    EntityManager em;
 
     @Test
     public void testMember(){
@@ -149,5 +153,40 @@ class MemberRepositoryTest {
 
         // then
         assertThat(resultCount).isEqualTo(3);
+    }
+
+    @Test
+    public void findMemberLazy(){
+        // given
+        // member1 -> teamA
+        // member2 -> teamB
+
+        Team teamA = new Team("teamA");
+        Team teamB = new Team("teamB");
+        teamRepository.save(teamA);
+        teamRepository.save(teamB);
+
+        Member member1 = new Member("member1", 10, teamA);
+        Member member2 = new Member("member2", 10, teamB);
+        memberRepository.save(member1);
+        memberRepository.save(member2);
+
+        em.flush();
+        em.clear();
+
+        // when
+        // fetch join 은 기본적으로 left outer join 을 사용한다.
+//        List<Member> members = memberRepository.findAll();    // N+1 문제 발생
+//        List<Member> members = memberRepository.findMemberFetchJoin();
+//        List<Member> members = memberRepository.findAll();
+//        List<Member> members = memberRepository.findMemberEntityGraph();
+        List<Member> members = memberRepository.findMemberByUsername("member1");
+
+
+        for (Member member : members) {
+            System.out.println("member : " + member.getUsername());
+            System.out.println("team class : " + member.getTeam().getClass());
+            System.out.println("team : " + member.getTeam().getName());
+        }
     }
 }

@@ -1,13 +1,11 @@
 package study.datajpa.repository;
 
-import org.springframework.data.jpa.repository.EntityGraph;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 import study.datajpa.dto.MemberDto;
 import study.datajpa.entity.Member;
 
+import javax.persistence.QueryHint;
 import java.util.List;
 
 /**
@@ -43,4 +41,8 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     @EntityGraph(attributePaths = {"team"})
     List<Member> findMemberByUsername(String username);
+
+    // hibernate 가 가진 readOnly 기능을 jpa 에서 사용하기 위한 방법
+    @QueryHints(value = @QueryHint(name = "org.hibernate.readOnly", value = "true"))
+    Member findReadOnlyByUsername(String username);
 }

@@ -182,11 +182,25 @@ class MemberRepositoryTest {
 //        List<Member> members = memberRepository.findMemberEntityGraph();
         List<Member> members = memberRepository.findMemberByUsername("member1");
 
-
         for (Member member : members) {
             System.out.println("member : " + member.getUsername());
             System.out.println("team class : " + member.getTeam().getClass());
             System.out.println("team : " + member.getTeam().getName());
         }
+    }
+
+    @Test
+    public void queryHint(){
+        // given
+        Member member1 = new Member("member1", 10);
+        memberRepository.save(member1);
+        em.flush();
+        em.clear();
+
+        // when
+        Member findMember = memberRepository.findReadOnlyByUsername("member1");
+        findMember.setUsername("member2");
+
+        em.flush();
     }
 }
